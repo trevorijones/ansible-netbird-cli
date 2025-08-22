@@ -1,0 +1,5 @@
+{
+{% for key, value in netbird_config.items() %}
+  "{{ key }}": {% if value is string %}"{{ value }}"{% else %}{{ value | to_json }}{% endif %}{% if not loop.last %},{% endif %}
+{% endfor %}
+}

@@ -1,0 +1,9 @@
+---
+# openSUSE specific variables
+
+netbird_packages:
+  - 'netbird'
+
+netbird_zypper_repository_url: 'https://pkgs.netbird.io/yum/'
+netbird_zypper_repository_name: 'netbird'
+netbird_service_name: 'netbird'

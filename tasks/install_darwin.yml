@@ -1,0 +1,224 @@
+---
+# Install NetBird on macOS systems using Homebrew
+
+- name: Add NetBird Homebrew tap
+  community.general.homebrew_tap:
+    name: "{{ netbird_homebrew_tap }}"
+    state: present
+  tags:
+    - netbird
+    - netbird-repository
+
+- name: Stop existing NetBird service (if upgrading)
+  ansible.builtin.command: netbird service stop
+  when: netbird_package_state == 'present'
+  changed_when: false
+  failed_when: false  # Don't fail if service doesn't exist
+  tags:
+    - netbird
+    - netbird-upgrade
+
+- name: Uninstall existing NetBird service (if upgrading)
+  ansible.builtin.command: netbird service uninstall
+  when: netbird_package_state == 'present'
+  changed_when: false
+  failed_when: false  # Don't fail if service doesn't exist
+  tags:
+    - netbird
+    - netbird-upgrade
+
+- name: Unlink existing NetBird (if upgrading)
+  community.general.homebrew:
+    name: netbird
+    state: unlinked
+  when: netbird_package_state == 'present'
+  failed_when: false  # Don't fail if not previously installed
+  tags:
+    - netbird
+    - netbird-upgrade
+
+- name: Install NetBird CLI package
+  community.general.homebrew:
+    name: "{{ netbird_packages }}"
+    state: "{{ netbird_package_state }}"
+  register: netbird_cli_install
+  tags:
+    - netbird
+    - netbird-package
+
+- name: Check if NetBird binary exists (Apple Silicon)
+  ansible.builtin.stat:
+    path: "{{ netbird_homebrew_path_arm64 }}"
+  register: netbird_binary_arm64
+  when:
+    - netbird_package_state == 'present'
+    - ansible_architecture == 'arm64'
+  tags:
+    - netbird
+    - netbird-package
+    - netbird-link
+
+- name: Check if NetBird binary exists (Intel)
+  ansible.builtin.stat:
+    path: "{{ netbird_homebrew_path_x86_64 }}"
+  register: netbird_binary_x86_64
+  when:
+    - netbird_package_state == 'present'
+    - ansible_architecture == 'x86_64'
+  tags:
+    - netbird
+    - netbird-package
+    - netbird-link
+
+- name: Ensure /usr/local/bin directory exists
+  ansible.builtin.file:
+    path: /usr/local/bin
+    state: directory
+    mode: '0755'
+  when: netbird_package_state == 'present'
+  become: true
+  tags:
+    - netbird
+    - netbird-package
+    - netbird-link
+
+- name: Warn if NetBird binary not found (Apple Silicon)
+  ansible.builtin.debug:
+    msg: "Warning: NetBird binary not found at {{ netbird_homebrew_path_arm64 }}. Symlink not created."
+  when:
+    - netbird_package_state == 'present'
+    - ansible_architecture == 'arm64'
+    - not (netbird_binary_arm64.stat.exists | default(false))
+  tags:
+    - netbird
+    - netbird-package
+    - netbird-link
+
+- name: Warn if NetBird binary not found (Intel)
+  ansible.builtin.debug:
+    msg: "Warning: NetBird binary not found at {{ netbird_homebrew_path_x86_64 }}. Symlink not created."
+  when:
+    - netbird_package_state == 'present'
+    - ansible_architecture == 'x86_64'
+    - not (netbird_binary_x86_64.stat.exists | default(false))
+  tags:
+    - netbird
+    - netbird-package
+    - netbird-link
+
+- name: Create NetBird CLI symlink (Apple Silicon)
+  ansible.builtin.command:
+    cmd: ln -sf "{{ netbird_homebrew_path_arm64 }}" "{{ netbird_symlink_path }}"
+  when:
+    - netbird_package_state == 'present'
+    - ansible_architecture == 'arm64'
+    - netbird_binary_arm64.stat.exists | default(false)
+  become: true
+  changed_when: true
+  failed_when: false
+  tags:
+    - netbird
+    - netbird-package
+    - netbird-link
+
+- name: Create NetBird CLI symlink (Intel)
+  ansible.builtin.command:
+    cmd: ln -sf "{{ netbird_homebrew_path_x86_64 }}" "{{ netbird_symlink_path }}"
+  when:
+    - netbird_package_state == 'present'
+    - ansible_architecture == 'x86_64'
+    - netbird_binary_x86_64.stat.exists | default(false)
+  become: true
+  changed_when: true
+  failed_when: false
+  tags:
+    - netbird
+    - netbird-package
+    - netbird-link
+
+- name: Stop NetBird service (when removing package)
+  ansible.builtin.command: netbird service stop
+  when: netbird_package_state == 'absent'
+  changed_when: false
+  failed_when: false  # Don't fail if not running
+  become: true
+  tags:
+    - netbird
+    - netbird-service
+    - netbird-remove
+
+- name: Uninstall NetBird service (when removing package)
+  ansible.builtin.command: netbird service uninstall
+  when: netbird_package_state == 'absent'
+  changed_when: false
+  failed_when: false  # Don't fail if not installed
+  become: true
+  tags:
+    - netbird
+    - netbird-service
+    - netbird-remove
+
+- name: Remove NetBird CLI symlink (when removing package)
+  ansible.builtin.file:
+    dest: "{{ netbird_symlink_path }}"
+    state: absent
+  when: netbird_package_state == 'absent'
+  become: true
+  failed_when: false
+  tags:
+    - netbird
+    - netbird-package
+    - netbird-link
+
+# NetBird CLI Service Management Section
+- name: Check if NetBird service is already installed
+  ansible.builtin.stat:
+    path: /Library/LaunchDaemons/netbird.plist
+  register: netbird_service_plist
+  when:
+    - netbird_package_state == 'present'
+
+    - netbird_requires_service_install | bool
+  tags:
+    - netbird
+    - netbird-service
+
+- name: Uninstall existing NetBird service (for clean reinstall)
+  ansible.builtin.command: netbird service uninstall
+  when:
+    - netbird_package_state == 'present'
+
+    - netbird_requires_service_install | bool
+    - netbird_service_plist.stat.exists | default(false)
+  changed_when: true
+  failed_when: false
+  become: true
+  tags:
+    - netbird
+    - netbird-service
+
+- name: Install NetBird service (CLI only)
+  ansible.builtin.command: netbird service install
+  when:
+    - netbird_package_state == 'present'
+
+    - netbird_requires_service_install | bool
+  changed_when: true
+  become: true
+  tags:
+    - netbird
+    - netbird-service
+
+- name: Start NetBird service (CLI only)
+  ansible.builtin.command: netbird service start
+  when:
+    - netbird_package_state == 'present'
+
+    - netbird_requires_service_install | bool
+    - netbird_service_enabled | bool
+  changed_when: true
+  failed_when: false  # Don't fail if already running
+  become: true
+  tags:
+    - netbird
+    - netbird-service

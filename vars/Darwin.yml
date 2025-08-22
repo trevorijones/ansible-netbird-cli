@@ -1,0 +1,14 @@
+---
+# macOS specific variables
+
+netbird_packages:
+  - 'netbirdio/tap/netbird'
+
+netbird_homebrew_tap: 'netbirdio/tap'
+netbird_service_name: 'netbird'
+netbird_requires_service_install: true  # CLI version needs manual service setup
+
+# macOS Homebrew paths
+netbird_homebrew_path_arm64: '/opt/homebrew/opt/netbird/bin/netbird'  # Apple Silicon
+netbird_homebrew_path_x86_64: '/usr/local/opt/netbird/bin/netbird'    # Intel
+netbird_symlink_path: '/usr/local/bin/netbird'  # Global symlink location

@@ -1,0 +1,86 @@
+---
+# Install NetBird from binary
+
+- name: Get latest NetBird release info
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/netbirdio/netbird/releases/latest
+    return_content: true
+  register: netbird_latest_release
+  when: netbird_version == 'latest'
+  tags:
+    - netbird
+    - netbird-binary
+
+- name: Set NetBird version from latest release
+  ansible.builtin.set_fact:
+    netbird_actual_version: "{{ netbird_latest_release.json.tag_name | regex_replace('^v', '') }}"
+  when: netbird_version == 'latest'
+  tags:
+    - netbird
+    - netbird-binary
+
+- name: Set NetBird version from variable
+  ansible.builtin.set_fact:
+    netbird_actual_version: "{{ netbird_version }}"
+  when: netbird_version != 'latest'
+  tags:
+    - netbird
+    - netbird-binary
+
+- name: Create temporary directory for NetBird download
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: netbird
+  register: netbird_temp_dir
+  tags:
+    - netbird
+    - netbird-binary
+
+- name: Download NetBird binary
+  ansible.builtin.get_url:
+    url: >-
+      https://github.com/netbirdio/netbird/releases/download/v{{ netbird_actual_version }}/
+      netbird_{{ netbird_actual_version }}_linux_{{ ansible_architecture }}.tar.gz
+    dest: "{{ netbird_temp_dir.path }}/netbird.tar.gz"
+    mode: '0644'
+  tags:
+    - netbird
+    - netbird-binary
+
+- name: Extract NetBird binary
+  ansible.builtin.unarchive:
+    src: "{{ netbird_temp_dir.path }}/netbird.tar.gz"
+    dest: "{{ netbird_temp_dir.path }}"
+    remote_src: true
+  tags:
+    - netbird
+    - netbird-binary
+
+- name: Install NetBird binary
+  ansible.builtin.copy:
+    src: "{{ netbird_temp_dir.path }}/netbird"
+    dest: "{{ netbird_binary_path }}"
+    mode: '0755'
+    owner: root
+    group: root
+    remote_src: true
+  tags:
+    - netbird
+    - netbird-binary
+
+- name: Install NetBird service
+  ansible.builtin.command: "{{ netbird_binary_path }} service install"
+  args:
+    creates: /etc/systemd/system/netbird.service
+  tags:
+    - netbird
+    - netbird-binary
+    - netbird-service
+
+- name: Clean up temporary files
+  ansible.builtin.file:
+    path: "{{ netbird_temp_dir.path }}"
+    state: absent
+  tags:
+    - netbird
+    - netbird-binary

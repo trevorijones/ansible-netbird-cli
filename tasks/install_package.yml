@@ -1,0 +1,75 @@
+---
+# Install NetBird via package manager
+
+- name: Install NetBird on Debian/Ubuntu
+  become: true
+  ansible.builtin.import_tasks: install_debian.yml
+  when: ansible_os_family == 'Debian'
+  tags:
+    - netbird
+    - netbird-package
+
+- name: Install NetBird on RedHat/CentOS
+  become: true
+  ansible.builtin.import_tasks: install_redhat.yml
+  when: ansible_os_family == 'RedHat' and ansible_distribution != 'Fedora'
+  tags:
+    - netbird
+    - netbird-package
+
+- name: Install NetBird on Fedora
+  become: true
+  ansible.builtin.import_tasks: install_fedora.yml
+  when: ansible_distribution == 'Fedora'
+  tags:
+    - netbird
+    - netbird-package
+
+- name: Install NetBird on openSUSE
+  become: true
+  ansible.builtin.import_tasks: install_suse.yml
+  when: ansible_os_family == 'Suse'
+  tags:
+    - netbird
+    - netbird-package
+
+- name: Install NetBird on macOS
+  ansible.builtin.import_tasks: install_darwin.yml
+  when: ansible_os_family == 'Darwin'
+  tags:
+    - netbird
+    - netbird-package
+
+- name: Ensure NetBird service is configured (package installations)
+  become: true
+  ansible.builtin.systemd_service:
+    name: "{{ netbird_service_name }}"
+    enabled: "{{ netbird_service_enabled }}"
+    state: "{{ netbird_service_state }}"
+    daemon_reload: true
+  when:
+    - netbird_package_state == 'present'
+    - netbird_install_method == 'package'
+    - ansible_os_family != 'Darwin'
+  tags:
+    - netbird
+    - netbird-package
+    - netbird-service
+
+- name: Stop and disable NetBird service (package removal)
+  become: true
+  ansible.builtin.systemd_service:
+    name: "{{ netbird_service_name }}"
+    enabled: false
+    state: stopped
+    daemon_reload: true
+  when:
+    - netbird_package_state == 'absent'
+    - netbird_install_method == 'package'
+    - ansible_os_family != 'Darwin'
+  failed_when: false  # Don't fail if service doesn't exist
+  tags:
+    - netbird
+    - netbird-package
+    - netbird-service
+    - netbird-remove

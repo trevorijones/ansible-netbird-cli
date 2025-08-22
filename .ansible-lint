@@ -1,0 +1,4 @@
+---
+# .ansible-lint
+warn_list:  # or 'skip_list' to silence them completely
+  - yaml[line-length]  # Lines should be no longer than 160 chars

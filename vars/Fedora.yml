@@ -1,0 +1,10 @@
+---
+# Fedora specific variables
+
+netbird_packages:
+  - 'netbird'
+
+netbird_yum_repository_url: 'https://pkgs.netbird.io/yum/'
+netbird_yum_gpg_key: 'https://pkgs.netbird.io/yum/repodata/repomd.xml.key'
+netbird_service_name: 'netbird'
+netbird_enable_appindicator: true  # Enable GNOME extension for Fedora

@@ -1,0 +1,19 @@
+---
+# Install NetBird on openSUSE systems
+
+- name: Add NetBird repository
+  community.general.zypper_repository:
+    name: "{{ netbird_zypper_repository_name }}"
+    repo: "{{ netbird_zypper_repository_url }}"
+    state: present
+  tags:
+    - netbird
+    - netbird-repository
+
+- name: Install NetBird package
+  ansible.builtin.package:
+    name: "{{ netbird_packages }}"
+    state: "{{ netbird_package_state }}"
+  tags:
+    - netbird
+    - netbird-package

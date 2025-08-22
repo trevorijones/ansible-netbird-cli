@@ -1,0 +1,15 @@
+---
+# Debian/Ubuntu specific variables
+
+netbird_packages:
+  - 'netbird'
+
+netbird_dependencies:
+  - 'ca-certificates'
+  - 'curl'
+  - 'gnupg'
+
+netbird_apt_key_url: 'https://pkgs.netbird.io/debian/public.key'
+netbird_apt_repository: 'deb [signed-by=/usr/share/keyrings/netbird-archive-keyring.gpg] https://pkgs.netbird.io/debian stable main'
+netbird_apt_keyring_path: '/usr/share/keyrings/netbird-archive-keyring.gpg'
+netbird_service_name: 'netbird'

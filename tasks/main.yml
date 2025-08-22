@@ -1,0 +1,130 @@
+---
+# =============================================================================
+# SCRIPT INSTALLATION BLOCK
+# =============================================================================
+- debug:
+    var: netbird_install_method
+
+- name: Install NetBird via script
+  ansible.builtin.include_tasks: install_script.yml
+  when: netbird_install_method == 'script'
+  tags:
+    - netbird
+    - netbird-install
+    - netbird-script
+
+# =============================================================================
+# PACKAGE INSTALLATION BLOCK (OS-Specific)
+# =============================================================================
+
+- name: Include OS-specific variables for package installation
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+  when: netbird_install_method == 'package'
+  tags:
+    - netbird
+    - netbird-install
+    - netbird-package
+
+- name: Install NetBird via package manager
+  ansible.builtin.include_tasks: install_package.yml
+  when: netbird_install_method == 'package'
+  tags:
+    - netbird
+    - netbird-install
+    - netbird-package
+
+
+# =============================================================================
+# BINARY INSTALLATION BLOCK
+# =============================================================================
+
+- name: Install NetBird via binary
+  ansible.builtin.include_tasks: install_binary.yml
+  when: netbird_install_method == 'binary'
+  tags:
+    - netbird
+    - netbird-install
+    - netbird-binary
+
+# =============================================================================
+# COMMON CONFIGURATION TASKS (All Installation Methods)
+# =============================================================================
+
+- name: Ensure NetBird configuration directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ netbird_config_dir }}"
+    state: directory
+    mode: '0755'
+  when:
+    - netbird_package_state == 'present'
+    - netbird_install_method != 'script'  # Script handles its own config
+  tags:
+    - netbird
+    - netbird-config
+
+- name: Configure NetBird
+  become: true
+  ansible.builtin.template:
+    src: config.json.j2
+    dest: "{{ netbird_config_dir }}/config.json"
+    mode: '0644'
+  notify: restart netbird
+  when:
+    - netbird_package_state == 'present'
+    - netbird_install_method != 'script'  # Script uses default config
+    - netbird_config is defined and netbird_config | length > 0
+  tags:
+    - netbird
+    - netbird-config
+
+# =============================================================================
+# COMMON CLEANUP AND CONNECTION TASKS
+# =============================================================================
+
+- name: Disconnect NetBird (when removing)
+  ansible.builtin.command: netbird down
+  when: netbird_package_state == 'absent'
+  changed_when: false
+  failed_when: false  # Don't fail if already disconnected or not configured
+  tags:
+    - netbird
+    - netbird-remove
+
+- name: Connect NetBird with setup key
+  ansible.builtin.command: >
+    netbird up --setup-key {{ netbird_setup_key }}
+    {% if netbird_management_url %}--management-url {{ netbird_management_url }}{% endif %}
+  register: netbird_connect_result
+  changed_when: netbird_connect_result.rc == 0
+  failed_when: netbird_connect_result.rc != 0
+  when:
+    - netbird_package_state == 'present'
+    - netbird_setup_key | length > 0
+    - netbird_auto_connect | bool
+  tags:
+    - netbird
+    - netbird-connect
+
+- name: Check NetBird status
+  ansible.builtin.command: netbird status
+  register: netbird_status_result
+  changed_when: false
+  failed_when: false
+  when:
+    - netbird_package_state == 'present'
+    - netbird_check_status | bool
+  tags:
+    - netbird
+    - netbird-status
+
+- name: Display NetBird status
+  ansible.builtin.debug:
+    var: netbird_status_result.stdout_lines
+  when:
+    - netbird_package_state == 'present'
+    - netbird_check_status | bool
+    - netbird_status_result is defined
+  tags:
+    - netbird
+    - netbird-status

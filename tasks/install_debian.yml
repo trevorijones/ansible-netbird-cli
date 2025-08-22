@@ -1,0 +1,44 @@
+---
+# Install NetBird on Debian/Ubuntu systems
+
+- name: Install dependencies for NetBird repository
+  ansible.builtin.package:
+    name: "{{ netbird_dependencies }}"
+    state: present
+  tags:
+    - netbird
+    - netbird-dependencies
+
+- name: Add NetBird GPG key
+  ansible.builtin.apt_key:
+    url: "{{ netbird_apt_key_url }}"
+    keyring: "{{ netbird_apt_keyring_path }}"
+    state: present
+  tags:
+    - netbird
+    - netbird-repository
+
+- name: Add NetBird repository
+  ansible.builtin.apt_repository:
+    repo: "{{ netbird_apt_repository }}"
+    filename: netbird
+    state: present
+  tags:
+    - netbird
+    - netbird-repository
+
+- name: Update APT cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 86400
+  tags:
+    - netbird
+    - netbird-repository
+
+- name: Install NetBird package
+  ansible.builtin.package:
+    name: "{{ netbird_packages }}"
+    state: "{{ netbird_package_state }}"
+  tags:
+    - netbird
+    - netbird-package

@@ -1,0 +1,17 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Check that NetBird is installed and available
+      command: which netbird
+      changed_when: false
+
+    - name: Verify NetBird version can be retrieved
+      command: netbird version
+      changed_when: false
+      register: netbird_version_output
+
+    - name: Display NetBird version
+      debug:
+        var: netbird_version_output.stdout

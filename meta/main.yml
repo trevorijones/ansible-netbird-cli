@@ -1,0 +1,50 @@
+---
+galaxy_info:
+  role_name: tj.netbird
+  author: trevorijones
+  description: Ansible role to install and configure NetBird VPN agent
+  company: trevorijones
+  license: MIT
+  min_ansible_version: '2.9'
+  github_branch: main
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+        - noble
+    - name: Debian
+      versions:
+        - bullseye
+        - bookworm
+    - name: EL
+      versions:
+        - '8'
+        - '9'
+    - name: Fedora
+      versions:
+        - '38'
+        - '39'
+        - '40'
+        - '41'
+    - name: opensuse
+      versions:
+        - all
+    - name: MacOSX
+      versions:
+        - all
+
+  galaxy_tags:
+    - networking
+    - vpn
+    - wireguard
+    - netbird
+    - mesh
+    - security
+    - remoteaccess
+    - infrastructure
+    - server
+    - client
+
+dependencies: []

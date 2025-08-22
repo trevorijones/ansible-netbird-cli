@@ -1,0 +1,26 @@
+---
+# Install NetBird on Fedora systems
+
+- name: Create NetBird repository file
+  ansible.builtin.copy:
+    content: |
+      [netbird]
+      name=netbird
+      baseurl={{ netbird_yum_repository_url }}
+      enabled=1
+      gpgcheck=0
+      gpgkey={{ netbird_yum_gpg_key }}
+      repo_gpgcheck=1
+    dest: /etc/yum.repos.d/netbird.repo
+    mode: '0644'
+  tags:
+    - netbird
+    - netbird-repository
+
+- name: Install NetBird package
+  ansible.builtin.package:
+    name: "{{ netbird_packages }}"
+    state: "{{ netbird_package_state }}"
+  tags:
+    - netbird
+    - netbird-package

@@ -1,0 +1,9 @@
+*.retry
+*/__pycache__
+*.pyc
+.cache
+.pytest_cache
+.molecule
+.vagrant
+.vscode
+.idea

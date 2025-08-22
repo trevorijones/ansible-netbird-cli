@@ -1,0 +1,49 @@
+---
+# NetBird role handlers
+
+- name: Restart netbird
+  ansible.builtin.systemd_service:
+    name: "{{ netbird_service_name }}"
+    state: restarted
+    daemon_reload: true
+  when:
+    - netbird_service_enabled | bool
+    - netbird_package_state == 'present'
+    - netbird_install_method == 'package'
+  failed_when: false
+  listen: restart netbird
+
+- name: Reload netbird
+  ansible.builtin.systemd_service:
+    name: "{{ netbird_service_name }}"
+    state: reloaded
+    daemon_reload: true
+  when:
+    - netbird_service_enabled | bool
+    - netbird_package_state == 'present'
+    - netbird_install_method == 'package'
+  failed_when: false
+  listen: reload netbird
+
+- name: Start netbird
+  ansible.builtin.systemd_service:
+    name: "{{ netbird_service_name }}"
+    state: started
+    daemon_reload: true
+  when:
+    - netbird_service_enabled | bool
+    - netbird_package_state == 'present'
+    - netbird_install_method == 'package'
+  failed_when: false
+  listen: start netbird
+
+- name: Stop netbird
+  ansible.builtin.systemd_service:
+    name: "{{ netbird_service_name }}"
+    state: stopped
+  when:
+    - netbird_service_enabled | bool
+    - netbird_package_state == 'present'
+    - netbird_install_method == 'package'
+  failed_when: false
+  listen: stop netbird

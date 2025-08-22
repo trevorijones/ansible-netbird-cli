@@ -1,0 +1,43 @@
+---
+# NetBird role default variables
+
+# Installation method: 'script', 'package', or 'binary'
+netbird_install_method: 'package'
+
+# Package installation specific variables
+netbird_package_state: 'present'
+
+# Binary installation specific variables
+netbird_version: 'latest'  # Use 'latest' or specify version like '0.28.8'
+netbird_binary_url: >-
+  https://github.com/netbirdio/netbird/releases/download/v{{ netbird_version }}/
+  netbird_{{ netbird_version }}_linux_{{ ansible_architecture }}.tar.gz
+netbird_binary_path: '/usr/bin/netbird'
+
+# Service management
+netbird_service_enabled: true
+netbird_service_state: 'started'
+
+# Authentication configuration
+netbird_setup_key: ''  # Setup key for authentication (leave empty for SSO)
+netbird_management_url: ''  # Custom management URL (leave empty for default)
+
+# Configuration options
+netbird_config_dir: '/etc/netbird'
+netbird_manage_config_dir: true  # Set to false for GUI installations that manage their own config
+netbird_log_level: 'info'  # Options: debug, info, warn, error
+netbird_interface_name: 'wt0'
+
+# TODO: Firewall configuration
+netbird_manage_firewall: false
+netbird_firewall_ports:
+  - '51820/udp'  # WireGuard default port
+
+# Configuration template variables
+netbird_config:
+  LogLevel: "{{ netbird_log_level }}"
+  InterfaceName: "{{ netbird_interface_name }}"
+
+# Connection settings
+netbird_auto_connect: true
+netbird_check_status: true

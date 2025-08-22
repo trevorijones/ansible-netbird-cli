@@ -1,0 +1,23 @@
+---
+# Install NetBird on RedHat/CentOS systems
+
+- name: Add NetBird repository
+  ansible.builtin.yum_repository:
+    name: netbird
+    description: NetBird Repository
+    baseurl: "{{ netbird_yum_repository_url }}"
+    enabled: true
+    gpgcheck: false
+    gpgkey: "{{ netbird_yum_gpg_key }}"
+    repo_gpgcheck: true
+  tags:
+    - netbird
+    - netbird-repository
+
+- name: Install NetBird package
+  ansible.builtin.package:
+    name: "{{ netbird_packages }}"
+    state: "{{ netbird_package_state }}"
+  tags:
+    - netbird
+    - netbird-package
