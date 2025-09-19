@@ -1,4 +1,4 @@
-# Ansible Role: NetBird (tj.netbird)
+# Ansible Role: NetBird (trevorijones.netbird)
 
 [![CI](https://github.com/trevorijones/ansible-netbird-cli/workflows/CI/badge.svg?event=push)](https://github.com/trevorijones/ansible-netbird-cli/actions?query=workflow%3ACI)
 
@@ -83,7 +83,7 @@ None.
     - hosts: servers
       become: true
       roles:
-        - role: tj.netbird
+        - role: trevorijones.netbird
           vars:
             netbird_install_method: 'script'
             netbird_setup_key: 'your-setup-key-here'
@@ -93,7 +93,7 @@ None.
     - hosts: servers
       become: true
       roles:
-        - role: tj.netbird
+        - role: trevorijones.netbird
           vars:
             netbird_install_method: 'package'
             netbird_setup_key: 'your-setup-key-here'
@@ -103,7 +103,7 @@ None.
     - hosts: servers
       become: true
       roles:
-        - role: tj.netbird
+        - role: trevorijones.netbird
           vars:
             netbird_install_method: 'binary'
             netbird_version: '0.28.8'
@@ -119,7 +119,7 @@ None.
     - hosts: clients
       become: true
       roles:
-        - role: tj.netbird
+        - role: trevorijones.netbird
           vars:
             netbird_setup_key: 'your-setup-key'
             netbird_management_url: 'https://netbird.example.com:33073'
@@ -128,7 +128,7 @@ None.
 
     - hosts: macos_clients
       roles:
-        - role: tj.netbird
+        - role: trevorijones.netbird
           vars:
             netbird_install_method: 'package'  # Uses Homebrew
             netbird_setup_key: 'macos-clients-setup-key'

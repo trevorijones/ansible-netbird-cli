@@ -10,7 +10,7 @@
       changed_when: false
 
   roles:
-    - role: tj.netbird
+    - role: trevorijones.netbird
       vars:
         netbird_install_method: 'script'
         netbird_setup_key: ''  # Don't actually connect during testing
