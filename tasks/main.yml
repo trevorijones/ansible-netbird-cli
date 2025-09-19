@@ -2,7 +2,8 @@
 # =============================================================================
 # SCRIPT INSTALLATION BLOCK
 # =============================================================================
-- debug:
+- name: Show selected install method
+  ansible.builtin.debug:
     var: netbird_install_method
 
 - name: Install NetBird via script
