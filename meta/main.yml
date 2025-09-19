@@ -1,6 +1,7 @@
 ---
 galaxy_info:
-  role_name: tj.netbird
+  namespace: trevorijones
+  role_name: netbird
   author: trevorijones
   description: Ansible role to install and configure NetBird VPN agent
   company: trevorijones
