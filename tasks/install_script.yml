@@ -20,7 +20,7 @@
     - netbird-script
 
 - name: Run NetBird install script
-  ansible.builtin.command: /tmp/netbird_install.sh
+  ansible.builtin.command: sh /tmp/netbird_install.sh
   args:
     creates: "{{ netbird_binary_path | default('/usr/bin/netbird') }}"
   register: netbird_script_result
