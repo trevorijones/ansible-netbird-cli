@@ -1,11 +1,20 @@
 ---
 # Install NetBird using the official install script
 
+- name: Check if NetBird is already installed
+  ansible.builtin.stat:
+    path: "{{ netbird_binary_path | default('/usr/bin/netbird') }}"
+  register: netbird_installed
+  tags:
+    - netbird
+    - netbird-script
+
 - name: Download NetBird install script
   ansible.builtin.get_url:
     url: https://pkgs.netbird.io/install.sh
     dest: /tmp/netbird_install.sh
     mode: '0755'
+  when: not netbird_installed.stat.exists
   tags:
     - netbird
     - netbird-script
@@ -13,9 +22,10 @@
 - name: Run NetBird install script
   ansible.builtin.shell: /tmp/netbird_install.sh
   args:
-    creates: /usr/bin/netbird
+    creates: "{{ netbird_binary_path | default('/usr/bin/netbird') }}"
   register: netbird_script_result
   changed_when: netbird_script_result.rc == 0
+  when: not netbird_installed.stat.exists
   tags:
     - netbird
     - netbird-script
