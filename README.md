@@ -7,8 +7,6 @@ An Ansible role that installs and configures NetBird agent (cli only) on Linux a
 ## Requirements
 
 - Ansible 2.9 or higher
-- Systemd-based Linux distribution (for service management)
-- Internet connectivity for downloading packages or binaries
 
 ## Role Variables
 
