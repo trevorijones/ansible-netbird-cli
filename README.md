@@ -165,10 +165,6 @@ Example usage:
 - Setup keys should be treated as sensitive data and stored securely (consider using Ansible Vault)
 - The role uses `no_log: true` for tasks handling sensitive authentication data
 
-### Common Issues
-
-1. **Connection fails**: Verify setup key and management URL
-2. **Service won't start**: Check system requirements and logs
 
 ## License
 
